@@ -1,0 +1,165 @@
+# Agrinho2026
+let tractor;
+let resources = [];
+let pollution = [];
+let score = 0;
+let health = 100;
+let gameOver = false;
+
+function setup() {
+  createCanvas(800, 500);
+
+  tractor = {
+    x: width / 2,
+    y: height - 60,
+    size: 40
+  };
+
+  for (let i = 0; i < 8; i++) {
+    resources.push(createResource());
+  }
+
+  for (let i = 0; i < 5; i++) {
+    pollution.push(createPollution());
+  }
+}
+
+function draw() {
+  background(135, 206, 235);
+
+  drawScenario();
+
+  if (!gameOver) {
+    moveTractor();
+    drawTractor();
+
+    updateResources();
+    updatePollution();
+
+    fill(0);
+    textSize(22);
+    text("Sustentabilidade: " + score, 20, 35);
+    text("Saúde Ambiental: " + health, 20, 65);
+
+    if (health <= 0) {
+      gameOver = true;
+    }
+  } else {
+    fill(0);
+    textAlign(CENTER);
+    textSize(40);
+    text("FIM DE JOGO", width / 2, height / 2 - 20);
+
+    textSize(24);
+    text("Pontuação: " + score, width / 2, height / 2 + 20);
+
+    textSize(18);
+    text("Pressione R para reiniciar", width / 2, height / 2 + 60);
+  }
+}
+
+function drawScenario() {
+  fill(80, 180, 80);
+  rect(0, 350, width, 150);
+
+  fill(255, 215, 0);
+  ellipse(700, 80, 80);
+
+  fill(255);
+  ellipse(120, 100, 70);
+  ellipse(150, 100, 70);
+  ellipse(135, 80, 70);
+}
+
+function drawTractor() {
+  fill(0, 150, 0);
+  rect(tractor.x, tractor.y, 50, 25);
+
+  fill(50);
+  ellipse(tractor.x + 10, tractor.y + 25, 18);
+  ellipse(tractor.x + 40, tractor.y + 25, 18);
+
+  fill(0, 100, 255);
+  rect(tractor.x + 15, tractor.y - 15, 20, 15);
+}
+
+function moveTractor() {
+  if (keyIsDown(LEFT_ARROW)) {
+    tractor.x -= 5;
+  }
+
+  if (keyIsDown(RIGHT_ARROW)) {
+    tractor.x += 5;
+  }
+
+  tractor.x = constrain(tractor.x, 0, width - 50);
+}
+
+function createResource() {
+  return {
+    x: random(width),
+    y: random(-500, 0),
+    speed: random(2, 4),
+    type: floor(random(3))
+  };
+}
+
+function createPollution() {
+  return {
+    x: random(width),
+    y: random(-500, 0),
+    speed: random(3, 5)
+  };
+}
+
+function updateResources() {
+  for (let r of resources) {
+    r.y += r.speed;
+
+    if (r.type === 0) fill(0, 150, 255);
+    if (r.type === 1) fill(255, 255, 0);
+    if (r.type === 2) fill(0, 200, 0);
+
+    ellipse(r.x, r.y, 20);
+
+    if (dist(r.x, r.y, tractor.x + 25, tractor.y) < 30) {
+      score += 10;
+      r.x = random(width);
+      r.y = random(-300, -50);
+    }
+
+    if (r.y > height) {
+      r.x = random(width);
+      r.y = random(-300, -50);
+    }
+  }
+}
+
+function updatePollution() {
+  for (let p of pollution) {
+    p.y += p.speed;
+
+    fill(120);
+    rect(p.x, p.y, 20, 20);
+
+    if (dist(p.x, p.y, tractor.x + 25, tractor.y) < 30) {
+      health -= 10;
+
+      p.x = random(width);
+      p.y = random(-300, -50);
+    }
+
+    if (p.y > height) {
+      p.x = random(width);
+      p.y = random(-300, -50);
+    }
+  }
+}
+
+function keyPressed() {
+  if (key === 'r' || key === 'R') {
+    score = 0;
+    health = 100;
+    gameOver = false;
+  }
+}
